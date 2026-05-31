@@ -139,10 +139,6 @@ export default function App() {
             <LogOut size={13} />
             Sign out
           </button>
-          <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: 'var(--mono)', marginTop: 6 }}>
-            <div>LangGraph · Groq</div>
-            <div>v1.0.0</div>
-          </div>
         </div>
       </div>
 
