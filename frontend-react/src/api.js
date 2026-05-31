@@ -1,4 +1,4 @@
-const BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+const BASE = import.meta.env.VITE_API_URL || '';
 
 function getToken() {
   return localStorage.getItem('yuno_token');
@@ -124,7 +124,7 @@ export const api = {
 
 // WebSocket — attach token as query param
 export function createWS(onMessage) {
-  const wsBase = (import.meta.env.VITE_API_URL || 'http://localhost:8000').replace(/^http/, 'ws');
+  const wsBase = (import.meta.env.VITE_API_URL || window.location.origin).replace(/^http/, 'ws');
   const token = getToken();
   const url = token ? `${wsBase}/ws?token=${encodeURIComponent(token)}` : `${wsBase}/ws`;
   const ws = new WebSocket(url);
