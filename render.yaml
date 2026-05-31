@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: yuno-backend
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+
+  - type: web
+    name: yuno-frontend
+    runtime: static
+    rootDir: frontend-react
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        sync: false
