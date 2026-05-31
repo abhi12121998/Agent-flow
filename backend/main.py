@@ -3,6 +3,9 @@ Yuno AI Agent Orchestration Platform — FastAPI Backend
 """
 from __future__ import annotations
 
+from dotenv import load_dotenv, find_dotenv
+load_dotenv(find_dotenv())
+
 import json
 import os
 import asyncio

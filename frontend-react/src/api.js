@@ -19,11 +19,14 @@ async function req(path, opts = {}) {
     ...opts,
   });
 
-  // Token expired or invalid → clear and redirect to login
   if (res.status === 401) {
-    localStorage.removeItem('yuno_token');
-    window.dispatchEvent(new Event('yuno:logout'));
-    throw new Error('Session expired — please log in again');
+    if (getToken()) {
+      // Had a token that got rejected → actual session expiry
+      localStorage.removeItem('yuno_token');
+      window.dispatchEvent(new Event('yuno:logout'));
+      throw new Error('Session expired — please log in again');
+    }
+    // No token → login failure, fall through and show the real error
   }
 
   if (!res.ok) {
