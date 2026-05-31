@@ -55,7 +55,7 @@ app.include_router(auth_router)
 memory_store = MemoryStore()
 
 
-@app.get("/")
+@app.api_route("/", methods=["GET", "HEAD"])
 def health_check():
     return {"status": "ok", "service": "Yuno Agent Platform"}
 
