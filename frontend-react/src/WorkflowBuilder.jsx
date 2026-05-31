@@ -220,6 +220,17 @@ export default function WorkflowBuilder({ toast }) {
     setRunning(false);
   }
 
+  async function deleteWorkflow(e, wf) {
+    e.stopPropagation();
+    if (!confirm(`Delete "${wf.name}"?`)) return;
+    try {
+      await api.workflows.delete(wf.id);
+      setWorkflows(ws => ws.filter(w => w.id !== wf.id));
+      if (activeWf?.id === wf.id) { setActiveWf(null); setNodes([]); setEdges([]); }
+      toast('Workflow deleted', 'success');
+    } catch (e) { toast(e.message, 'error'); }
+  }
+
   async function createNew() {
     if (!newWfName.trim()) return;
     const wf = await api.workflows.create({ name: newWfName.trim(), description: newWfDesc, graph_json: { nodes: [], edges: [] } });
@@ -257,11 +268,21 @@ export default function WorkflowBuilder({ toast }) {
             {workflows.map(wf => (
               <div key={wf.id}
                 onClick={() => loadWorkflow(wf)}
-                style={{ padding: '8px 8px', borderRadius: 6, cursor: 'pointer', marginBottom: 2,
+                style={{ padding: '6px 8px', borderRadius: 6, cursor: 'pointer', marginBottom: 2,
                   background: activeWf?.id === wf.id ? 'var(--accent)15' : 'transparent',
                   border: activeWf?.id === wf.id ? '1px solid var(--accent)30' : '1px solid transparent',
-                  fontSize: 12, color: activeWf?.id === wf.id ? 'var(--accent)' : 'var(--text)' }}>
-                {wf.name}
+                  fontSize: 12, color: activeWf?.id === wf.id ? 'var(--accent)' : 'var(--text)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 4 }}>
+                <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{wf.name}</span>
+                <button
+                  onClick={e => deleteWorkflow(e, wf)}
+                  className="btn btn-ghost btn-icon"
+                  style={{ width: 20, height: 20, padding: 0, flexShrink: 0, opacity: 0.5 }}
+                  onMouseEnter={e => { e.currentTarget.style.opacity = 1; e.currentTarget.style.color = 'var(--danger)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.opacity = 0.5; e.currentTarget.style.color = ''; }}
+                >
+                  <Trash2 size={11} />
+                </button>
               </div>
             ))}
           </div>
