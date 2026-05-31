@@ -16,6 +16,10 @@ class RegisterRequest(BaseModel):
     email: str
     password: str
 
+    def validate_password(self):
+        if len(self.password.encode("utf-8")) > 72:
+            raise HTTPException(400, "Password must be 72 characters or fewer")
+
 
 class LoginRequest(BaseModel):
     username: str
@@ -34,6 +38,7 @@ def _user_dict(user: User) -> dict:
 
 @router.post("/register", status_code=201)
 def register(body: RegisterRequest):
+    body.validate_password()
     with Session(engine) as session:
         if session.exec(select(User).where(User.username == body.username)).first():
             raise HTTPException(400, "Username already taken")
