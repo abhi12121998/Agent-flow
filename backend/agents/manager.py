@@ -19,7 +19,7 @@ class AgentManager:
         name: str,
         role: str,
         system_prompt: str,
-        model: str = "gpt-4o",
+        model: str = "llama-3.3-70b-versatile",
         temperature: float = 0.7,
         max_tokens: int = 2048,
         tools: List[str] = None,

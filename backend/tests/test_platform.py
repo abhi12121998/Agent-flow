@@ -90,7 +90,7 @@ class TestAgentCRUD:
         agent = AgentManager.create(name="T1", role="Tester", system_prompt="Test.")
         assert agent.id is not None
         assert agent.name == "T1"
-        assert agent.model == "gpt-4o"
+        assert agent.model == "llama-3.3-70b-versatile"
 
     def test_create_agent_with_tools(self):
         agent = AgentManager.create(name="T2", role="R", system_prompt="S",

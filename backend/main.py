@@ -25,7 +25,7 @@ from db.models import (
 from agents.manager import AgentManager
 from agents.runtime import AgentRunner
 from agents.tools import TOOL_DESCRIPTIONS
-from llm_provider import get_provider_info, OPENAI_TO_GROQ, GROQ_MODELS
+from llm_provider import get_provider_info
 from document_validator import validator as doc_validator
 from workflows.runner import WorkflowRunner
 from workflows.templates import get_all_templates
@@ -121,7 +121,7 @@ class AgentCreate(BaseModel):
     name: str
     role: str
     system_prompt: str
-    model: str = "gpt-4o"
+    model: str = "llama-3.3-70b-versatile"
     temperature: float = 0.7
     max_tokens: int = 2048
     tools: List[str] = []
