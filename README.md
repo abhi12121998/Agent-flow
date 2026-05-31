@@ -37,10 +37,6 @@ LangGraph was chosen over CrewAI, AutoGen, and a custom runtime because:
 3. **Native tool use** — `ToolNode` + `bind_tools` gives clean ReAct loops without manual prompt engineering.
 4. **Async-friendly** — runs in a thread pool via `run_in_executor`, keeping FastAPI non-blocking while WebSocket events stream in real time.
 
-**Why not others:**
-- **CrewAI** — less control over the execution graph, harder to introspect per step.
-- **AutoGen** — conversation-centric, awkward to wire into a deterministic DAG.
-- **Custom runtime** — no tool ecosystem; would require reimplementing tool calling and state management.
 
 ---
 

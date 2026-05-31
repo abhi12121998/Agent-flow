@@ -11,9 +11,9 @@ import os
 import asyncio
 import logging
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import List, Optional
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, BackgroundTasks, UploadFile, File, Depends, Query
+from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Depends, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlmodel import Session, select
@@ -26,7 +26,6 @@ from agents.manager import AgentManager
 from agents.runtime import AgentRunner
 from agents.tools import TOOL_DESCRIPTIONS
 from llm_provider import get_provider_info
-from document_validator import validator as doc_validator
 from workflows.runner import WorkflowRunner
 from workflows.templates import get_all_templates
 from memory.store import MemoryStore
@@ -604,23 +603,6 @@ async def restart_channel(channel_id: str, current_user: User = Depends(get_curr
 def get_provider():
     return get_provider_info()
 
-
-# ════════════════════════════════════════════════════════════════════
-# Document Validation  (public — no auth)
-# ════════════════════════════════════════════════════════════════════
-@app.post("/api/validate")
-async def validate_document(file: UploadFile = File(...)):
-    content = await file.read()
-    report = doc_validator.validate_bytes(file.filename or "upload", content)
-    return report.to_dict()
-
-
-@app.post("/api/validate/text")
-async def validate_text(body: dict):
-    filename = body.get("filename", "document.txt")
-    content  = body.get("content", "")
-    report = doc_validator.validate_text(filename, content)
-    return report.to_dict()
 
 
 # ════════════════════════════════════════════════════════════════════
