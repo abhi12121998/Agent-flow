@@ -3,7 +3,8 @@ Built-in tools available to agents.
 Each tool is a LangChain-compatible tool that can be selected per agent.
 """
 from langchain.tools import tool
-from langchain_community.tools import DuckDuckGoSearchRun
+from langchain_community.utilities import GoogleSerperAPIWrapper
+from langchain.tools import Tool
 from typing import Optional
 import httpx
 import json
@@ -12,7 +13,8 @@ import math
 
 # ── Web Search ──────────────────────────────────────────────────────────────
 def get_search_tool():
-    return DuckDuckGoSearchRun(name="web_search")
+    search = GoogleSerperAPIWrapper()
+    return Tool(name="web_search", func=search.run, description="Search the web using Google Serper")
 
 
 # ── Calculator ───────────────────────────────────────────────────────────────
@@ -80,7 +82,7 @@ TOOL_REGISTRY = {
 }
 
 TOOL_DESCRIPTIONS = {
-    "web_search": "Search the web using DuckDuckGo",
+    "web_search": "Search the web using Google (Serper)",
     "calculator": "Evaluate mathematical expressions",
     "http_get": "Make HTTP GET requests to external APIs",
     "json_parse": "Parse and format JSON data",
