@@ -45,7 +45,7 @@ app = FastAPI(title="Yuno Agent Platform", version="1.0.0")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -53,6 +53,11 @@ app.add_middleware(
 app.include_router(auth_router)
 
 memory_store = MemoryStore()
+
+
+@app.get("/")
+def health_check():
+    return {"status": "ok", "service": "Yuno Agent Platform"}
 
 
 @app.on_event("startup")
