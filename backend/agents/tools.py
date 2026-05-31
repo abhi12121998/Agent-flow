@@ -4,7 +4,6 @@ Each tool is a LangChain-compatible tool that can be selected per agent.
 """
 from langchain.tools import tool
 from langchain_community.utilities import GoogleSerperAPIWrapper
-from langchain.tools import Tool
 from typing import Optional
 import httpx
 import json
@@ -12,9 +11,15 @@ import math
 
 
 # ── Web Search ──────────────────────────────────────────────────────────────
-def get_search_tool():
+@tool
+def web_search(query: str) -> str:
+    """Search the web using Google. Use this to find current, up-to-date information."""
     search = GoogleSerperAPIWrapper()
-    return Tool(name="web_search", func=search.run, description="Search the web using Google Serper")
+    return search.run(query)
+
+
+def get_search_tool():
+    return web_search
 
 
 # ── Calculator ───────────────────────────────────────────────────────────────

@@ -10,6 +10,7 @@ inputs to downstream agents via the WorkflowRunner.
 from __future__ import annotations
 
 import json
+import re
 import asyncio
 import logging
 from datetime import datetime, timezone
@@ -28,6 +29,42 @@ from db.models import Agent, AgentMemory, LogEntry, Message
 from memory.store import MemoryStore
 
 logger = logging.getLogger(__name__)
+
+
+# ── LLaMA malformed tool-call parsers ────────────────────────────────────────
+# Pattern 1: <|python_tag|>func_name("arg")  or  <|python_tag|>func_name(key="val")
+_PYTHON_TAG_RE = re.compile(r"<\|python_tag\|>(\w+)\((.*)\)\s*$", re.DOTALL)
+# Pattern 2: <function=func_name>{"key": "val"}</function>  (sometimes missing closing tag)
+_FUNC_TAG_RE = re.compile(r"<function=(\w+)>?(\{.*?\})(?:</function>)?\s*$", re.DOTALL)
+
+def _try_parse_malformed_tool_call(content: str) -> Optional[dict]:
+    """
+    Parse LLaMA 3 malformed tool-call formats into a tool_calls-compatible dict.
+    Handles both <|python_tag|> and <function=name> variants.
+    """
+    s = content.strip()
+
+    # Pattern 1: <|python_tag|>func("arg")
+    m = _PYTHON_TAG_RE.match(s)
+    if m:
+        func_name, args_str = m.group(1), m.group(2).strip()
+        try:
+            args = json.loads(args_str) if args_str.startswith("{") else {"query": args_str.strip("\"'")}
+        except Exception:
+            args = {"query": args_str}
+        return {"name": func_name, "args": args, "id": f"call_{func_name}_0", "type": "tool_call"}
+
+    # Pattern 2: <function=func_name>{"key": "val"}
+    m = _FUNC_TAG_RE.search(s)
+    if m:
+        func_name, args_str = m.group(1), m.group(2).strip()
+        try:
+            args = json.loads(args_str)
+        except Exception:
+            args = {"query": args_str}
+        return {"name": func_name, "args": args, "id": f"call_{func_name}_0", "type": "tool_call"}
+
+    return None
 
 
 # ── Agent State ───────────────────────────────────────────────────────────────
@@ -97,13 +134,36 @@ def build_agent_graph(agent_cfg: Agent, event_callback=None, loop_holder: Option
             response = llm_with_tools.invoke(msgs)
         except Exception as e:
             # Groq/LLaMA sometimes generates malformed tool calls (tool_use_failed).
-            # Fall back to the plain LLM (no tools) so the agent can still respond.
+            # Try to parse the failed_generation before giving up.
             err_str = str(e)
             if "tool_use_failed" in err_str or "Failed to call a function" in err_str:
-                logger.warning(f"Tool call malformed by model, retrying without tools: {e}")
-                response = llm.invoke(msgs)
+                failed_gen = ""
+                try:
+                    import ast
+                    err_detail = ast.literal_eval(err_str.split(" - ", 1)[1]) if " - " in err_str else {}
+                    failed_gen = err_detail.get("error", {}).get("failed_generation", "")
+                except Exception:
+                    pass
+                if failed_gen:
+                    parsed = _try_parse_malformed_tool_call(failed_gen)
+                    if parsed:
+                        logger.info(f"Recovered tool call from failed_generation: {parsed['name']}")
+                        response = AIMessage(content="", tool_calls=[parsed])
+                    else:
+                        logger.warning(f"Tool call malformed, retrying without tools: {e}")
+                        response = llm.invoke(msgs)
+                else:
+                    logger.warning(f"Tool call malformed, retrying without tools: {e}")
+                    response = llm.invoke(msgs)
             else:
                 raise
+
+        # LLaMA 3 on Groq sometimes uses <|python_tag|> or <function=...> in content
+        if not getattr(response, "tool_calls", None) and isinstance(getattr(response, "content", None), str):
+            parsed = _try_parse_malformed_tool_call(response.content)
+            if parsed:
+                logger.info(f"Converting malformed content to tool_call: {parsed['name']}")
+                response = AIMessage(content="", tool_calls=[parsed])
 
         usage = getattr(response, "usage_metadata", None) or {}
         tokens, cost = calc_cost(dict(usage) if usage else {})
