@@ -14,11 +14,13 @@ command -v npm     >/dev/null 2>&1 || { echo "ERROR: npm is required"; exit 1; }
 
 # ── Environment ──────────────────────────────────────────────────────────────
 if [ ! -f .env ]; then
-  if [ -z "$OPENAI_API_KEY" ]; then
-    echo "Enter your OpenAI API key:"
-    read -r OPENAI_API_KEY
+  if [ -z "$GROQ_API_KEY" ]; then
+    echo "Enter your Groq API key (free at console.groq.com):"
+    read -r GROQ_API_KEY
   fi
-  echo "OPENAI_API_KEY=$OPENAI_API_KEY" > .env
+  JWT_SECRET=$(python3 -c "import secrets; print(secrets.token_hex(32))")
+  echo "GROQ_API_KEY=$GROQ_API_KEY" > .env
+  echo "JWT_SECRET=$JWT_SECRET" >> .env
   echo "✓ .env created"
 else
   echo "✓ .env found"
@@ -41,7 +43,6 @@ python -m pytest tests/ -q --tb=short 2>&1 | tail -5
 echo ""
 
 # Start backend in background
-export OPENAI_API_KEY=$OPENAI_API_KEY
 uvicorn main:app --host 0.0.0.0 --port 8000 --reload &
 BACKEND_PID=$!
 echo "✓ Backend started (PID $BACKEND_PID) → http://localhost:8000"
