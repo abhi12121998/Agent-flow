@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Bot, GitBranch, Activity, Radio, LayoutDashboard, FileCheck, LogOut } from 'lucide-react';
+import { Bot, GitBranch, Activity, Radio, LayoutDashboard, LogOut } from 'lucide-react';
 import AgentStudio from './AgentStudio';
 import WorkflowBuilder from './WorkflowBuilder';
 import Monitor from './Monitor';
 import Channels from './Channels';
-import DocValidator from './DocValidator';
 import Auth from './Auth';
 import { useToast, ToastContainer } from './toast';
 import { api } from './api';
@@ -15,7 +14,6 @@ const NAV = [
   { id: 'workflows', label: 'Workflows',      icon: GitBranch, desc: 'Visual workflow builder' },
   { id: 'monitor',   label: 'Monitor',        icon: Activity,  desc: 'Live logs & metrics' },
   { id: 'channels',  label: 'Channels',       icon: Radio,     desc: 'Telegram & messaging' },
-  { id: 'validate',  label: 'Doc Validator',  icon: FileCheck, desc: 'Line-by-line validation' },
 ];
 
 export default function App() {
@@ -95,19 +93,6 @@ export default function App() {
             </div>
           </div>
 
-          {/* Provider badge */}
-          {provider && (
-            <div style={{ marginTop: 10, padding: '5px 8px', borderRadius: 6,
-              background: provider.active_provider === 'openai' ? 'var(--accent3)10' : 'var(--accent)10',
-              border: `1px solid ${provider.active_provider === 'openai' ? 'var(--accent3)30' : 'var(--accent)30'}`,
-              fontSize: 10, color: provider.active_provider === 'openai' ? 'var(--accent3)' : 'var(--accent)',
-              fontFamily: 'var(--mono)', display: 'flex', alignItems: 'center', gap: 4 }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%',
-                background: provider.active_provider === 'openai' ? 'var(--accent3)' : 'var(--accent)',
-                display: 'inline-block' }} />
-              {provider.active_provider === 'openai' ? 'OpenAI GPT-4o' : 'Groq (free)'}
-            </div>
-          )}
         </div>
 
         {/* Nav */}
@@ -155,7 +140,7 @@ export default function App() {
             Sign out
           </button>
           <div style={{ fontSize: 10, color: 'var(--text3)', fontFamily: 'var(--mono)', marginTop: 6 }}>
-            <div>LangGraph · {provider?.active_provider === 'openai' ? 'GPT-4o' : 'LLaMA 3.3'}</div>
+            <div>LangGraph · Groq</div>
             <div>v1.0.0</div>
           </div>
         </div>
@@ -167,7 +152,6 @@ export default function App() {
         {page === 'workflows' && <WorkflowBuilder toast={toast} />}
         {page === 'monitor'   && <Monitor toast={toast} />}
         {page === 'channels'  && <Channels toast={toast} />}
-        {page === 'validate'  && <DocValidator toast={toast} />}
       </div>
 
       <ToastContainer toasts={toasts} />

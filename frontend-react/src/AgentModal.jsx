@@ -2,16 +2,10 @@ import { useState, useEffect } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
 
 const MODELS = [
-  // OpenAI (used when OPENAI_API_KEY is set)
-  { value: 'gpt-4o',        label: 'GPT-4o (OpenAI)',        group: 'OpenAI' },
-  { value: 'gpt-4o-mini',   label: 'GPT-4o Mini (OpenAI)',   group: 'OpenAI' },
-  { value: 'gpt-4-turbo',   label: 'GPT-4 Turbo (OpenAI)',   group: 'OpenAI' },
-  { value: 'gpt-3.5-turbo', label: 'GPT-3.5 Turbo (OpenAI)', group: 'OpenAI' },
-  // Groq free tier (fallback when no OpenAI key)
-  { value: 'llama-3.3-70b-versatile', label: 'LLaMA 3.3 70B (Groq free)', group: 'Groq' },
-  { value: 'llama-3.1-8b-instant',    label: 'LLaMA 3.1 8B (Groq free)',  group: 'Groq' },
-  { value: 'mixtral-8x7b-32768',      label: 'Mixtral 8x7B (Groq free)',  group: 'Groq' },
-  { value: 'gemma2-9b-it',            label: 'Gemma2 9B (Groq free)',     group: 'Groq' },
+  { value: 'llama-3.3-70b-versatile', label: 'LLaMA 3.3 70B' },
+  { value: 'llama-3.1-8b-instant',    label: 'LLaMA 3.1 8B'  },
+  { value: 'mixtral-8x7b-32768',      label: 'Mixtral 8x7B'  },
+  { value: 'gemma2-9b-it',            label: 'Gemma2 9B'     },
 ];
 
 export default function AgentModal({ agent, tools, onSave, onClose }) {
@@ -20,7 +14,7 @@ export default function AgentModal({ agent, tools, onSave, onClose }) {
     name: '',
     role: '',
     system_prompt: '',
-    model: 'gpt-4o',
+    model: 'llama-3.3-70b-versatile',
     temperature: 0.7,
     max_tokens: 2048,
     tools: [],
@@ -105,12 +99,8 @@ export default function AgentModal({ agent, tools, onSave, onClose }) {
               <div className="form-group">
                 <label>Model</label>
                 <select value={form.model} onChange={e => set('model', e.target.value)}>
-                  {['OpenAI', 'Groq'].map(group => (
-                    <optgroup key={group} label={group}>
-                      {MODELS.filter(m => m.group === group).map(m => (
-                        <option key={m.value} value={m.value}>{m.label}</option>
-                      ))}
-                    </optgroup>
+                  {MODELS.map(m => (
+                    <option key={m.value} value={m.value}>{m.label}</option>
                   ))}
                 </select>
               </div>

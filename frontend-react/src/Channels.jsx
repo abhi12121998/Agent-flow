@@ -77,8 +77,8 @@ export default function Channels({ toast }) {
 
       {/* Setup Guide */}
       <div className="card" style={{ padding: 20, marginBottom: 20, background: 'var(--surface)' }}>
-        <div style={{ fontWeight: 600, marginBottom: 8, display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span>🤖</span> Telegram Bot Setup Guide
+        <div style={{ fontWeight: 600, marginBottom: 8 }}>
+          Telegram Bot Setup Guide
         </div>
         <div style={{ fontSize: 12, color: 'var(--text2)', lineHeight: 1.8 }}>
           <div>1. Open Telegram and message <a href="https://t.me/BotFather" target="_blank" style={{ color: 'var(--accent)' }}>@BotFather</a></div>
@@ -105,7 +105,7 @@ export default function Channels({ toast }) {
             <div key={ch.id} className="card" style={{ padding: '16px 20px', display: 'flex', alignItems: 'center', gap: 16 }}>
               <div style={{ width: 40, height: 40, borderRadius: 10, background: '#0088cc20',
                 display: 'flex', alignItems: 'center', justifyContent: 'center', border: '1px solid #0088cc40', flexShrink: 0 }}>
-                <span style={{ fontSize: 20 }}>✈️</span>
+                <span style={{ fontSize: 13, fontFamily: 'var(--mono)', color: '#0088cc' }}>TG</span>
               </div>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
@@ -174,7 +174,7 @@ export default function Channels({ toast }) {
               <button className="btn btn-secondary" onClick={() => setShowModal(false)}>Cancel</button>
               <button className="btn btn-primary" onClick={create}
                 disabled={saving || !form.name || !form.token || !form.agent_id}>
-                {saving ? <><span className="spinner" /> Starting bot…</> : '✈️ Add & Start Bot'}
+                {saving ? <><span className="spinner" /> Starting bot…</> : 'Add & Start Bot'}
               </button>
             </div>
           </div>
